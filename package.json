@@ -2,7 +2,6 @@
   "dependencies": {
     "gm": "~1.9.1",
     "css-parse": "~1.4.0",
-    "underscore": "~1.4.4",
     "ansi": "~0.1.2",
     "optimist": "~0.5.0"
   }

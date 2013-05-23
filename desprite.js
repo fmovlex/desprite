@@ -1,6 +1,5 @@
 var fs = require('fs');
 var gm = require('gm');
-var _ = require('underscore');
 var ansi = require('ansi');
 var cursor = ansi(process.stdout);
 var parse = require('./lib/parser');
@@ -37,7 +36,7 @@ if (!fs.existsSync(targetdir)) {
 
 var cssData = fs.readFileSync(argv.css, { encoding: 'utf8' });
 var parsed = parse.parseCss(cssData);
-var rules = _.reject(parsed.stylesheet.rules, function(rule) { return rule.type == 'comment'; });
+var rules = parsed.stylesheet.rules;
 
 var total = rules.length;
 var qualify = 0;
@@ -60,6 +59,11 @@ var isRuleValid = function(decs) {
 
 for (var i = 0; i < rules.length; ++i) {
 	rule = rules[i];
+	if (rule.type === 'comment') {
+		disq++;
+		continue;
+	}
+
 	rulename = parse.parseRuleName(rule);
 	decs = {};
 
