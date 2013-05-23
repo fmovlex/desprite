@@ -118,7 +118,7 @@ for (var i = 0; i < rules.length; ++i) {
 			cursor
 			.write('done with ' + qualify + ' valid rules out of ' + total + ' - ')
 			.green()
-			.write(done + ' successfullly split images')
+			.write(done + ' successfully split images')
 			.reset()
 			.write(' and ');
 
