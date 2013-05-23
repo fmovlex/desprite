@@ -1,6 +1,8 @@
 #desprite#
 
 Split a sprite image by the css usage.
+
+Authored minimally with our project in mind - take a look at the code before going wild.
   
 ##Dependencies##
 
