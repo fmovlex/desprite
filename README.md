@@ -3,6 +3,10 @@
 Split a sprite image by the css usage.
 
 Authored minimally with our project in mind - take a look at the code before going wild.
+
+##Usage Example##
+
+$ node desprite.js -i sprite.png -c sprites.css -v
   
 ##Dependencies##
 
