@@ -15,6 +15,8 @@ var argv = require('optimist')
 			.describe('o', 'Output folder path (default: split/)')
 			.alias('v', 'verbose')
 			.describe('v', 'Verbose progress messages')
+			.alias('p', 'parsed')
+			.describe('p', 'Verbose progress messages shown for valid rules only')
 			.argv;
 
 var verifyExists = function (path) {
@@ -75,13 +77,14 @@ for (var i = 0; i < rules.length; ++i) {
 			decs[dec.property] = parse.parseDeclaration(dec);
 			break;
 			case 'background-position':
+			case 'background':
 			decs.pos = parse.parseDeclaration(dec);
 			break;
 		}
 	}
 
 	if (!isRuleValid(decs)) {
-		if (argv.verbose) {
+		if (argv.verbose && !argv.parsed) {
 			cursor.yellow();
 			console.log('rule %s invalid for split, skipping...', rulename);
 			cursor.reset();
@@ -91,7 +94,7 @@ for (var i = 0; i < rules.length; ++i) {
 		continue;
 	}
 
-	if (argv.verbose) {
+	if (argv.verbose || argv.parsed) {
 		cursor.green().write('rule ' + rulename + ' OK, splitting...').reset();
 		console.log(' (%d, %d, %d, %d)', decs.width, decs.height, decs.pos.x, decs.pos.y);
 	}
@@ -103,7 +106,7 @@ for (var i = 0; i < rules.length; ++i) {
 	.write(targetdir + rulename + '.png', function(err) {
 		if (err) {
 			erred++;
-			if (argv.verbose){
+			if (argv.verbose || argv.parsed){
 				cursor
 				.red()
 				.write('error in splitting: ' + err)
