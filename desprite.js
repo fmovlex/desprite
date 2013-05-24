@@ -59,7 +59,7 @@ var isRuleValid = function(decs) {
 
 for (var i = 0; i < rules.length; ++i) {
 	rule = rules[i];
-	if (rule.type === 'comment') {
+	if (rule.type !== 'rule' || !rule.declarations) {
 		disq++;
 		continue;
 	}
