@@ -13,6 +13,7 @@ Basically, uses CSS rules with width, height, and background/background-position
 + css-parse (https://npmjs.org/package/css-parse)
 + optimist (https://github.com/substack/node-optimist)
 + ansi (https://github.com/TooTallNate/ansi.js)
++ Q (https://github.com/kriskowal/q)
 
 ##Usage##
 

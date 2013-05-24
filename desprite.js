@@ -1,57 +1,20 @@
-var fs = require('fs');
 var gm = require('gm');
+var Q = require('q');
 var ansi = require('ansi');
 var cursor = ansi(process.stdout);
-var parse = require('./lib/parser');
-var argv = require('optimist')
-			.usage('Split a sprite image by the css usage.\nUsage: $0')
-			.demand('i')
-			.alias('i', 'image')
-			.describe('i', 'Sprite image')
-			.demand('c')
-			.alias('c', 'css')
-			.describe('c', 'CSS file')
-			.alias('o', 'output')
-			.describe('o', 'Output folder path (default: split/)')
-			.alias('v', 'verbose')
-			.describe('v', 'Verbose progress messages')
-			.alias('p', 'parsed')
-			.describe('p', 'Verbose progress messages shown for valid rules only')
-			.argv;
 
-var verifyExists = function (path) {
-	if (!fs.existsSync(path)) {
-		cursor.red();
-		console.log('File not found: %s', path);
-		cursor.reset();
-		process.exit(0);
-	}
-};
+var argv = require('./lib/args')();
+var parser = require('./lib/parser');
+var files = require('./lib/file_helper');
 
-verifyExists(argv.image);
-verifyExists(argv.css);
+files.verifySource(argv.image);
+files.verifySource(argv.css);
+var targetdir = files.verifyOutput(argv.output);
 
-var targetdir = (argv.output || 'split') + '/';
-if (!fs.existsSync(targetdir)) {
-	fs.mkdirSync(targetdir);
-}
-
-var cssData = fs.readFileSync(argv.css, { encoding: 'utf8' });
-var parsed = parse.parseCss(cssData);
+var parsed = parser.parseCss(argv.css);
 var rules = parsed.stylesheet.rules;
 
-var total = rules.length;
-var qualify = 0;
-var disq = 0;
-var erred = 0;
-var done = 0;
-
-console.log('found %d rules, starting split...', total);
-
-var rulename;
-var decs;
-var rule;
-var dec;
+console.log('found %d css entries, parsing...', rules.length);
 
 var isRuleValid = function(decs) {
 	return decs.width !== undefined &&
@@ -59,26 +22,27 @@ var isRuleValid = function(decs) {
 	decs.pos !== undefined;
 };
 
-for (var i = 0; i < rules.length; ++i) {
-	rule = rules[i];
-	if (rule.type !== 'rule' || !rule.declarations) {
-		disq++;
-		continue;
-	}
+var qualifiers = [];
 
-	rulename = parse.parseRuleName(rule);
-	decs = {};
+for (var i = 0; i < rules.length; ++i) {
+	var rule = rules[i];
+
+	if (rule.type !== 'rule' || !rule.declarations)
+		continue;
+
+	var rulename = parser.parseRuleName(rule);
+	var decs = {};
 
 	for (var j = 0; j < rule.declarations.length; ++j) {
-		dec = rule.declarations[j];
+		var dec = rule.declarations[j];
 		switch (dec.property) {
 			case 'width':
 			case 'height':
-			decs[dec.property] = parse.parseDeclaration(dec);
+			decs[dec.property] = parser.parseDeclaration(dec);
 			break;
 			case 'background-position':
 			case 'background':
-			decs.pos = parse.parseDeclaration(dec);
+			decs.pos = parser.parseDeclaration(dec);
 			break;
 		}
 	}
@@ -90,26 +54,34 @@ for (var i = 0; i < rules.length; ++i) {
 			cursor.reset();
 		}
 
-		disq++;
 		continue;
 	}
 
 	if (argv.verbose || argv.parsed) {
-		cursor.green().write('rule ' + rulename + ' OK, splitting...').reset();
+		cursor.green().write('rule ' + rulename + ' OK, saved for split...').reset();
 		console.log(' (%d, %d, %d, %d)', decs.width, decs.height, decs.pos.x, decs.pos.y);
 	}
 
-	qualify++;
+	qualifiers.push({ name: rulename, decs: decs });
+}
 
-	gm(argv.image)
+var qualified = qualifiers.length;
+console.log('parsed %d valid rules out a total %d, starting split...', qualified, rules.length);
+
+var promises = [];
+var erred = 0;
+var done = 0;
+
+var doSplit = function (image, decs, target, log, dfd) {
+	gm(image)
 	.crop(decs.width, decs.height, decs.pos.x, decs.pos.y)
-	.write(targetdir + rulename + '.png', function(err) {
+	.write(target, function(err) {
 		if (err) {
 			erred++;
-			if (argv.verbose || argv.parsed){
+			if (log) {
 				cursor
 				.red()
-				.write('error in splitting: ' + err)
+				.write('error while splitting: ' + err)
 				.reset()
 				.write('\n');
 			}
@@ -117,20 +89,31 @@ for (var i = 0; i < rules.length; ++i) {
 			done++;
 		}
 
-		if ((qualify + disq == total) && (done + erred == qualify)) {
-			cursor
-			.write('done with ' + qualify + ' valid rules out of ' + total + ' - ')
-			.green()
-			.write(done + ' successfully split images')
-			.reset()
-			.write(' and ');
-
-			if (erred > 0)
-				cursor.red();
-
-			cursor.write(erred + ' errors.')
-			.reset()
-			.write('\n');
-		}
+		dfd.resolve();
 	});
+};
+
+for (var i = 0; i<qualified; ++i) {
+	var dfd = Q.defer();
+	promises.push(dfd.promise);
+
+	var qualifier = qualifiers[i];
+	doSplit(argv.image, qualifier.decs,
+		targetdir + qualifier.name + '.png', argv.verbose || argv.parsed, dfd);
 }
+
+Q.all(promises).then(function() {
+	cursor
+	.write('all done! ')
+	.green()
+	.write(done + ' successfully split images')
+	.reset()
+	.write(' and ');
+
+	if (erred > 0)
+		cursor.red();
+
+	cursor.write(erred + ' errors.')
+	.reset()
+	.write('\n');
+});
