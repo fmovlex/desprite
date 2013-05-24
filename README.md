@@ -4,7 +4,7 @@ Split a sprite image by the css usage with a simple CLI written in node.
 
 Authored minimally with our project in mind - take a look at the code before going wild.
 
-Basically, uses CSS rules with width, height, and background-position properties to crop out images out of the sprite by your usage.
+Basically, uses CSS rules with width, height, and background/background-position properties to crop out images out of the sprite by your usage.
   
 ##Dependencies##
 
