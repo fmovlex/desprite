@@ -22,9 +22,9 @@ Basically, uses CSS rules with width, height, and background/background-position
 This program runs under nodejs, so if you don't have that installed - http://nodejs.org/ latest build and default setup should do fine.
 
 You must also install [GraphicsMagick](http://www.graphicsmagick.org/) - the gm module requires it to crop out the images.
-Also make sure that after your installtion, your cmd/terminal responds to "gm" with the GraphicsMagick CLI.
+Make sure that after your installation, your cmd/terminal responds to "gm" with the GraphicsMagick CLI.
 
-Then just git clone and run (for example):
+Then just git clone and run from that folder (for example):
 
     $ npm install
     $ node desprite.js -i sprite.png -c sprites.css --verbose
