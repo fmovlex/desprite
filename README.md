@@ -19,7 +19,10 @@ Basically, uses CSS rules with width, height, and background/background-position
 
 ##Usage##
 
-You must first install [GraphicsMagick](http://www.graphicsmagick.org/) - the gm module requires it to crop out the images.
+This program runs under nodejs, so if you don't have that installed - http://nodejs.org/ latest build and default setup should do fine.
+
+You must also install [GraphicsMagick](http://www.graphicsmagick.org/) - the gm module requires it to crop out the images.
+Also make sure that after your installtion, your cmd/terminal responds to "gm" with the GraphicsMagick CLI.
 
 Then just git clone and run (for example):
 
