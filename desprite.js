@@ -93,13 +93,15 @@ var doSplit = function (image, decs, target, log, dfd) {
 	});
 };
 
+var log = argv.verbose || argv.parsed;
+
 for (var i = 0; i<qualified; ++i) {
 	var dfd = Q.defer();
 	promises.push(dfd.promise);
 
 	var qualifier = qualifiers[i];
 	doSplit(argv.image, qualifier.decs,
-		targetdir + qualifier.name + '.png', argv.verbose || argv.parsed, dfd);
+		targetdir + qualifier.name + '.png', log, dfd);
 }
 
 Q.all(promises).then(function() {
