@@ -1,6 +1,6 @@
 var gm = require('gm');
-var Q = require('q');
 var ansi = require('ansi');
+var when = require('when');
 var cursor = ansi(process.stdout);
 
 var argv = require('./lib/args')();
@@ -96,7 +96,7 @@ var doSplit = function (image, decs, target, log, dfd) {
 var log = argv.verbose || argv.parsed;
 
 for (var i = 0; i<qualified; ++i) {
-	var dfd = Q.defer();
+	var dfd = when.defer();
 	promises.push(dfd.promise);
 
 	var qualifier = qualifiers[i];
@@ -104,7 +104,7 @@ for (var i = 0; i<qualified; ++i) {
 		targetdir + qualifier.name + '.png', log, dfd);
 }
 
-Q.all(promises).then(function() {
+when.all(promises).then(function() {
 	cursor
 	.write('all done! ')
 	.green()
