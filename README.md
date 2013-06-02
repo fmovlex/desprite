@@ -15,7 +15,7 @@ Basically, uses CSS rules with width, height, and background/background-position
 + css-parse (https://npmjs.org/package/css-parse)
 + optimist (https://github.com/substack/node-optimist)
 + ansi (https://github.com/TooTallNate/ansi.js)
-+ Q (https://github.com/kriskowal/q)
++ when (https://github.com/cujojs/when)
 
 ##Usage##
 
@@ -24,7 +24,7 @@ This program runs under nodejs, so if you don't have that installed - http://nod
 You must also install [GraphicsMagick](http://www.graphicsmagick.org/) - the gm module requires it to crop out the images.
 Make sure that after your installation, your cmd/terminal responds to "gm" with the GraphicsMagick CLI.
 
-Then just git clone and run from that folder (for example):
+Then just git clone (or download zip) and run from that folder (for example):
 
     $ npm install
     $ node desprite.js -i sprite.png -c sprites.css --verbose
