@@ -23,6 +23,7 @@ desprite searches your CSS for qualified<sup>1</sup> rules, and crops out the re
 3. That's it. Just git clone (or download zip) and run (for example):
     ```
     $ npm install
+
     $ node desprite.js -i sprite.png -c sprites.css --verbose
     ```
   
