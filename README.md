@@ -35,6 +35,7 @@ desprite searches your CSS for qualified<sup>1</sup> rules, and crops out the re
 + optimist (https://github.com/substack/node-optimist)
 + ansi (https://github.com/TooTallNate/ansi.js)
 + when (https://github.com/cujojs/when)
++ sanitize-filename (https://www.npmjs.org/package/sanitize-filename)
 
 ##Acknowledgments##
 
