@@ -6,6 +6,7 @@ var cursor = ansi(process.stdout);
 var argv = require('./lib/args')();
 var parser = require('./lib/parser');
 var files = require('./lib/file_helper');
+var sanitize = require('sanitize-filename');
 
 files.verifySource(argv.image);
 files.verifySource(argv.css);
@@ -100,8 +101,9 @@ for (var i = 0; i<qualified; ++i) {
 	promises.push(dfd.promise);
 
 	var qualifier = qualifiers[i];
+	var sanitized = sanitize(qualifier.name);
 	doSplit(argv.image, qualifier.decs,
-		targetdir + qualifier.name + '.png', log, dfd);
+		targetdir + sanitized + '.png', log, dfd);
 }
 
 when.all(promises).then(function() {
