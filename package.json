@@ -1,9 +1,10 @@
 {
   "dependencies": {
-    "gm": "~1.9.1",
-    "css-parse": "~1.4.0",
     "ansi": "~0.1.2",
+    "css-parse": "~1.4.0",
+    "gm": "~1.9.1",
     "optimist": "~0.5.0",
+    "sanitize-filename": "^1.0.1",
     "when": "~2.1.0"
   }
 }
