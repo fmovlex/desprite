@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var gm = require('gm');
 var ansi = require('ansi');
 var when = require('when');
