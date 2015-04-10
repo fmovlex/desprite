@@ -1,4 +1,9 @@
 {
+  "name": "desprite",
+  "version": "1.0.0",
+  "description": "Split a sprite image by CSS usage",
+  "homepage": "https://github.com/fmovlex/desprite",
+  "bin": { "desprite": "./desprite.js" },
   "dependencies": {
     "ansi": "~0.1.2",
     "css-parse": "~1.4.0",
