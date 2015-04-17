@@ -1,125 +1,206 @@
 #!/usr/bin/env node
 
+var fs = require('fs');
 var gm = require('gm');
-var ansi = require('ansi');
 var when = require('when');
-var cursor = ansi(process.stdout);
 
-var argv = require('./lib/args')();
+var ansi = require('ansi');
+var cursor = ansi(process.stdout);
+var args = require('./lib/args');
+
 var parser = require('./lib/parser');
-var files = require('./lib/file_helper');
 var sanitize = require('sanitize-filename');
 
-files.verifySource(argv.image);
-files.verifySource(argv.css);
-var targetdir = files.verifyOutput(argv.output);
+var argv = args();
 
-var parsed = parser.parseCss(argv.css);
-var rules = parsed.stylesheet.rules;
+var log = {
+	valid: argv.verbose || argv.parsed,
+	invalid: argv.verbose && !argv.parsed
+};
 
-console.log('found %d css entries, parsing...', rules.length);
+var chunkSize = argv.spawn || 50;
+var chunk = 0;
+var counter = {
+	err: 0,
+	ok: 0
+};
 
-var isRuleValid = function(decs) {
+main();
+
+function main() {
+	verifySourceFile(argv.image);
+	verifySourceFile(argv.css);
+	argv.output = resolveOutputPath(argv.output);
+
+	var parsed = parser.parseCss(argv.css);
+	var rules = parsed.stylesheet.rules;
+	console.log('found %d css entries, parsing...', rules.length);
+
+	var valids = validate(rules);
+	console.log('parsed %d valid rules out of a total %d, starting split...',
+		valids.length, rules.length);
+
+	processNextChunk(valids);
+}
+
+function processNextChunk(valids) {
+	var slice = valids.slice(chunk*chunkSize, (chunk+1)*chunkSize);
+	if (!slice.length) {
+		logResult();
+		return;
+	}
+
+	var promises = queue(slice);
+	when.all(promises)
+		.then(function() {
+			if (log.valid) logChunk(chunk);
+			++chunk;
+			processNextChunk(valids);
+		});
+}
+
+function validate(rules) {
+	var valids = {};
+
+	rules.forEach(function(rule) {
+		if (rule.type !== 'rule') return;
+		if (!rule.declarations) return;
+
+		var name = parser.parseRuleName(rule);
+		var decs = {};
+
+		rule.declarations.forEach(function(dec) {
+			switch(dec.property) {
+				case 'width':
+				case 'height':
+					decs[dec.property] = parser.parseDimension(dec.value);
+					break;
+				case 'background':
+					decs.pos = parser.parseBGShorthand(dec.value);
+					break;
+				case 'background-position':
+					decs.pos = parser.parseBGPosition(dec.value);
+					break;
+			}
+
+			if (isRuleValid(decs)) {
+				var key = [decs.width, decs.height, decs.pos.x, decs.pos.y].join('_');
+				if (valids[key]) {
+					if (log.invalid) logDuplicate(name, valids[key].name);
+				} else {
+					valids[key] = {name: name, decs: decs}
+					if (log.valid) logValid(name, decs);
+				}
+			} else {
+				if (log.invalid) logInvalid(name);
+			}
+		});
+	});
+
+	// extract values
+	return Object.keys(valids).map(function (key) {return valids[key]});
+}
+
+function queue(valids) {
+	var promises = [];
+
+	valids.forEach(function(valid) {
+		var dfd = when.defer();
+		promises.push(dfd.promise);
+
+		var sanitized = sanitize(valid.name);
+		var target = argv.output + sanitized + '.png';
+		split(valid.decs, target, dfd);
+	});
+
+	return promises;
+}
+
+function split(decs, target, dfd) {
+	gm(argv.image)
+		.crop(decs.width, decs.height, decs.pos.x, decs.pos.y)
+		.write(target, function(err) {
+			if (err) {
+				counter.err++;
+				if (log.valid) logSplitError(err);
+			} else {
+				counter.ok++;
+			}
+
+			dfd.resolve();
+		});
+}
+
+function verifySourceFile(path) {
+	if (!fs.existsSync(path)) {
+		cursor.red();
+		console.log('File not found: %s', path);
+		cursor.reset();
+		process.exit(0);
+	}
+}
+
+function resolveOutputPath(userArg) {
+	var targetdir = (userArg || 'split') + '/';
+	if (!fs.existsSync(targetdir)) {
+		fs.mkdirSync(targetdir);
+	}
+
+	return targetdir;
+}
+
+function isRuleValid(decs) {
 	return decs.width !== undefined &&
 	decs.height !== undefined &&
 	decs.pos !== undefined;
-};
-
-var qualifiers = [];
-
-for (var i = 0; i < rules.length; ++i) {
-	var rule = rules[i];
-
-	if (rule.type !== 'rule' || !rule.declarations)
-		continue;
-
-	var rulename = parser.parseRuleName(rule);
-	var decs = {};
-
-	for (var j = 0; j < rule.declarations.length; ++j) {
-		var dec = rule.declarations[j];
-		switch (dec.property) {
-			case 'width':
-			case 'height':
-			decs[dec.property] = parser.parseDeclaration(dec);
-			break;
-			case 'background-position':
-			case 'background':
-			decs.pos = parser.parseDeclaration(dec);
-			break;
-		}
-	}
-
-	if (!isRuleValid(decs)) {
-		if (argv.verbose && !argv.parsed) {
-			cursor.yellow();
-			console.log('rule %s invalid for split, skipping...', rulename);
-			cursor.reset();
-		}
-
-		continue;
-	}
-
-	if (argv.verbose || argv.parsed) {
-		cursor.green().write('rule ' + rulename + ' OK, saved for split...').reset();
-		console.log(' (%d, %d, %d, %d)', decs.width, decs.height, decs.pos.x, decs.pos.y);
-	}
-
-	qualifiers.push({ name: rulename, decs: decs });
 }
 
-var qualified = qualifiers.length;
-console.log('parsed %d valid rules out a total %d, starting split...', qualified, rules.length);
-
-var promises = [];
-var erred = 0;
-var done = 0;
-
-var doSplit = function (image, decs, target, log, dfd) {
-	gm(image)
-	.crop(decs.width, decs.height, decs.pos.x, decs.pos.y)
-	.write(target, function(err) {
-		if (err) {
-			erred++;
-			if (log) {
-				cursor
-				.red()
-				.write('error while splitting: ' + err)
-				.reset()
-				.write('\n');
-			}
-		} else {
-			done++;
-		}
-
-		dfd.resolve();
-	});
-};
-
-var log = argv.verbose || argv.parsed;
-
-for (var i = 0; i<qualified; ++i) {
-	var dfd = when.defer();
-	promises.push(dfd.promise);
-
-	var qualifier = qualifiers[i];
-	var sanitized = sanitize(qualifier.name);
-	doSplit(argv.image, qualifier.decs,
-		targetdir + sanitized + '.png', log, dfd);
+function logValid(name, decs) {
+	cursor.green().write('rule ' + name + ' OK, saved for split...').reset();
+	console.log(' (%d, %d, %d, %d)', decs.width, decs.height, decs.pos.x, decs.pos.y);
 }
 
-when.all(promises).then(function() {
+function logDuplicate(name1, name2) {
+	cursor.yellow();
+	console.log('rule %s is a duplicate of rule %s, skipping...', name1, name2);
+	cursor.reset();
+}
+
+function logInvalid(name) {
+	cursor.yellow();
+	console.log('rule %s invalid for split, skipping...', name);
+	cursor.reset();
+}
+
+function logSplitError(err) {
 	cursor
-	.write('all done! ')
-	.green()
-	.write(done + ' successfully split images')
-	.reset()
-	.write(' and ');
+		.red()
+		.write('error while splitting: ' + err)
+		.reset()
+		.write('\n');
+}
 
-	if (erred > 0)
+function logChunk(chunk) {
+	cursor
+		.green()
+		.write('processed chunk ' + (chunk+1))
+		.reset()
+		.write('\n');
+}
+
+function logResult() {
+	cursor
+		.write('all done! ')
+		.green()
+		.write(counter.ok + ' successfully split images')
+		.reset()
+		.write(' and ');
+
+	if (counter.err > 0)
 		cursor.red();
 
-	cursor.write(erred + ' errors.')
-	.reset()
-	.write('\n');
-});
+	cursor
+		.write(counter.err + ' errors.')
+		.reset()
+		.write('\n');
+}
