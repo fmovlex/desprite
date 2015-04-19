@@ -1,0 +1,26 @@
+.world91,
+.phone43,
+.network11,
+.alarm54 {
+    background: url(sprites.png) no-repeat;
+}
+.world91 {
+    background-position: -8px -8px;
+    width: 32px;
+    height: 32px;
+}
+.phone43 {
+    background-position: -60px -23px;
+    width: 32px;
+    height: 32px;
+}
+.network11 {
+    background-position: -9px -59px;
+    width: 32px;
+    height: 32px;
+}
+.alarm54 {
+    background-position: -60px -77px;
+    width: 32px;
+    height: 32px;
+}
