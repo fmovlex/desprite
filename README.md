@@ -2,7 +2,7 @@
 
 Split a sprite image by the CSS usage with a simple command-line tool, written in node.
 
-![Super important graphic](http://i.imgur.com/q7jQ6qO.png)
+![Super important graphic](http://i.imgur.com/Jn0xJwH.png)
 
 desprite searches your CSS for qualified<sup>1</sup> rules, and crops out the rectangles they reference to seperate<sup>2</sup> image files.
 <br><br>
