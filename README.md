@@ -24,7 +24,7 @@ desprite searches your CSS for qualified<sup>1</sup> rules, and crops out the re
     ```
     $ npm install
 
-    $ node desprite.js -i sprite.png -c sprites.css --verbose
+    $ node desprite.js -i test-src\sprites.png -c test-src\sprites.css
     ```
   
 ##Dependencies##
