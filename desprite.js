@@ -82,19 +82,19 @@ function validate(rules) {
 					decs.pos = parser.parseBGPosition(dec.value);
 					break;
 			}
-
-			if (isRuleValid(decs)) {
-				var key = [decs.width, decs.height, decs.pos.x, decs.pos.y].join('_');
-				if (valids[key]) {
-					if (log.invalid) logDuplicate(name, valids[key].name);
-				} else {
-					valids[key] = {name: name, decs: decs}
-					if (log.valid) logValid(name, decs);
-				}
-			} else {
-				if (log.invalid) logInvalid(name);
-			}
 		});
+
+		if (isRuleValid(decs)) {
+			var key = [decs.width, decs.height, decs.pos.x, decs.pos.y].join('_');
+			if (valids[key]) {
+				if (log.invalid) logDuplicate(name, valids[key].name);
+			} else {
+				valids[key] = {name: name, decs: decs}
+				if (log.valid) logValid(name, decs);
+			}
+		} else {
+			if (log.invalid) logInvalid(name);
+		}
 	});
 
 	// extract values
