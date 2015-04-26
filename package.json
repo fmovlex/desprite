@@ -1,6 +1,6 @@
 {
   "name": "desprite",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Split a sprite image by CSS usage",
   "homepage": "https://github.com/fmovlex/desprite",
   "bin": {

@@ -26,6 +26,12 @@ desprite searches your CSS for qualified<sup>1</sup> rules, and crops out the re
 
     $ node desprite.js -i test-src\sprites.png -c test-src\sprites.css
     ```
+
+##Runtime Options##
+
+* `-v`, `--verbose`: Verbose debug output
+* `-u`, `--unique`: Allow common rules (aka: images) if the rule names are unique
+
   
 ##Dependencies##
 

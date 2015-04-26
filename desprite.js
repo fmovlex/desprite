@@ -25,6 +25,8 @@ var counter = {
 	ok: 0
 };
 
+var uniqueNames = argv.unique || false;
+
 main();
 
 function main() {
@@ -85,7 +87,9 @@ function validate(rules) {
 		});
 
 		if (isRuleValid(decs)) {
-			var key = [decs.width, decs.height, decs.pos.x, decs.pos.y].join('_');
+			var key = (uniqueNames)
+						 ? [name, decs.width, decs.height, decs.pos.x, decs.pos.y].join('_')
+						 : [decs.width, decs.height, decs.pos.x, decs.pos.y].join('_');
 			if (valids[key]) {
 				if (log.invalid) logDuplicate(name, valids[key].name);
 			} else {
