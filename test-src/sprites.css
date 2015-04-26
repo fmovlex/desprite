@@ -29,3 +29,11 @@
     width: 32px;
     height: 32px;
 }
+.unrelated-rule {
+    display: block;
+    color: blue;
+}
+.unrelated-with-bg {
+    background: blue;
+    font-size: 111px;
+}
