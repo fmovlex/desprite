@@ -36,8 +36,9 @@ desprite searches your CSS for qualified<sup>1</sup> rules, and crops out the re
   -p, --parsed   Verbose progress messages shown for valid rules only
   -u, --unique   Include duplicate rules if their rule identifiers are unique
   -s, --spawn    Max threads spawned for split operation (default: 50)
+  -r, --ratio    Scale ratio between source image size and the background-image-size (default: 1)
 ```
-  
+
 ##Dependencies##
 
 + gm (https://github.com/aheckmann/gm)
