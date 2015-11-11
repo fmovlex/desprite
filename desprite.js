@@ -33,6 +33,7 @@ function main() {
 	verifySourceFile(argv.image);
 	verifySourceFile(argv.css);
 	argv.output = resolveOutputPath(argv.output);
+	argv.ratio = resolveRatio(argv.ratio);
 
 	var parsed = parser.parseCss(argv.css);
 	var rules = parsed.stylesheet.rules;
@@ -122,7 +123,7 @@ function queue(valids) {
 
 function split(decs, target, dfd) {
 	gm(argv.image)
-		.crop(decs.width, decs.height, decs.pos.x, decs.pos.y)
+		.crop(decs.width * argv.ratio, decs.height * argv.ratio, decs.pos.x * argv.ratio, decs.pos.y * argv.ratio)
 		.write(target, function(err) {
 			if (err) {
 				counter.err++;
@@ -207,4 +208,17 @@ function logResult() {
 		.write(counter.err + ' errors.')
 		.reset()
 		.write('\n');
+}
+
+function resolveRatio(ratio) {
+	if (!ratio) return 1;
+
+	if (isNaN(ratio) || parseFloat(ratio) <= 0) {
+		cursor.red();
+		console.log('Invalid scale ratio: %s', ratio);
+		cursor.reset();
+		process.exit(0);
+	}
+
+	return parseFloat(ratio);
 }
