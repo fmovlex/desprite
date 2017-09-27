@@ -1,55 +1,45 @@
-#desprite#
+# Desprite
 
-Split a sprite image by the CSS usage with a simple command-line tool, written in node.
+Desprite splits sprite images by looking for usages in their related CSS files.
 
-![Super important graphic](http://i.imgur.com/Jn0xJwH.png)
+It is most useful when sprite images are optimized (tightly packed), and automatic edge-finding tools are ineffective.
 
-desprite searches your CSS for qualified<sup>1</sup> rules, and crops out the rectangles they reference to seperate<sup>2</sup> image files.
-<br><br>
-<sub>1 - rules containing `width`, `height`, and `background` or `background-position`.</sub><br>
-<sub>2 - files are named by the rule that referenced their position (usually a class name).</sub>
+If your sprites have spaces between them (or you just don't have the CSS), I suggest giving [Alferd](https://github.com/ForkandBeard/Alferd-Spritesheet-Unpacker) a try. 
 
-##Usage##
+![image + css = desprites](http://i.imgur.com/Jn0xJwH.png)
 
-1. desprite runs on [Node.js](http://nodejs.org/), so you need that.
-2. You must also install [GraphicsMagick](http://www.graphicsmagick.org/) - that's how we crop out the images.
-  * Windows: [SourceForge downloads](http://sourceforge.net/projects/graphicsmagick/files/graphicsmagick-binaries/)
-  * Linux: `$ sudo apt-get install graphicsmagick`
-  * Mac:
-      * Homebrew: `$ brew install graphicsmagick`
-      * Old fashioned: http://mac-dev-env.patrickbougie.com/graphicsmagick/
+## Usage
 
-  Make sure that after your installation, your cmd/terminal responds to "gm" with the GraphicsMagick CLI.
-3. That's it. Just git clone (or download zip) and run (for example):
-    ```
-    $ npm install
+`go get github.com/fmovlex/desprite` or download the desprite binary from the releases tab.
 
-    $ node desprite.js -i test-src\sprites.png -c test-src\sprites.css
-    ```
-
-##Runtime Options##
 ```
-  -i, --image    Sprite image                                                  [required]
-  -c, --css      CSS file                                                      [required]
-  -o, --output   Output folder path (default: split/)
-  -v, --verbose  Verbose progress messages
-  -p, --parsed   Verbose progress messages shown for valid rules only
-  -u, --unique   Include duplicate rules if their rule identifiers are unique
-  -s, --spawn    Max threads spawned for split operation (default: 50)
-  -r, --ratio    Scale ratio between source image size and the background-image-size (default: 1)
+$ desprite
+Usage:
+  desprite IMAGE CSS [CSS]... [flags]
+
+Examples:
+  desprite sprite.png first.css second.css --verbose
+
+Flags:
+  -h, --help            help for desprite
+  -n, --named           consider identifiers when filtering duplicates
+  -o, --output string   output folder path (default "split/")
+  -r, --ratio int       scale ratio between the source image size and the CSS sprite size (ex. 2 for retina) (default 1)
+  -v, --verbose         print verbose progress messages
 ```
 
-##Dependencies##
+## History
 
-+ gm (https://github.com/aheckmann/gm)
-+ GraphicsMagick (http://www.graphicsmagick.org/)
-+ css-parse (https://npmjs.org/package/css-parse)
-+ optimist (https://github.com/substack/node-optimist)
-+ ansi (https://github.com/TooTallNate/ansi.js)
-+ when (https://github.com/cujojs/when)
-+ sanitize-filename (https://npmjs.org/package/sanitize-filename)
+Desprite was originally written in node.js (with a dependency on GraphicsMagick), after our team lost 500+ source images to our main sprite.
 
-##Acknowledgments##
+It used a basic matcher that looked for rules containing `width`, `height`, and `background` or `background-position`, and tried to extract the calculated rectangles from the input sprite image - which (suprisingly) had 100% success.
 
-desprite was authored minimally to solve a problem with our team's project, and probably does not take all wacky cases into consideration.
-Contributions or feedback about your case are welcome.
+Over the last few years quite a few people found the tool helpful, so it has been rewritten in [Go](https://golang.org/) to provide an easy single file executable with no external dependencies.
+
+The matcher is still as minimal as possible and does not take all wacky cases into consideration - contributions or feedback about your case are welcome.
+
+If you'd still like to use the node.js version, it is available on commit c9efb2c.
+
+## License
+
+MIT
