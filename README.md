@@ -8,6 +8,8 @@ If your sprites have spaces between them (or you just don't have the CSS), I sug
 
 ![image + css = desprites](http://i.imgur.com/Jn0xJwH.png)
 
+[![Build Status](https://travis-ci.org/fmovlex/desprite.svg?branch=master)](https://travis-ci.org/fmovlex/desprite) [![GoDoc](https://godoc.org/github.com/fmovlex/desprite?status.svg)](https://godoc.org/github.com/fmovlex/desprite)
+
 ## Usage
 
 `go get github.com/fmovlex/desprite` or download the desprite binary from the releases tab.
