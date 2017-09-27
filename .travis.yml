@@ -1,0 +1,19 @@
+language: go
+go:
+- 1.9.x
+script:
+- GOOS=windows GOARCH=amd64 go build -o bin/desprite-windows-amd64.exe
+- GOOS=darwin  GOARCH=amd64 go build -o bin/desprite-osx-amd64
+- GOOS=linux   GOARCH=amd64 go build -o bin/desprite-linux-amd64
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: Ph3moaAuzjDa3B2y73rf4SJh/+EuyR1Hbh8WbVnhbI5AGCI8sJtOB24Bc6fa3aIQRq8vyMvAhb/iMW0kxwJLDGHlgJsne1klGKLKYmKwTkmDFVJVw/2woeXJL9js2KCooDpGCl0w/oJ9280Tf50sj9vlVt3utXeFx0NCZyJLMi/ZARy8QzVcweCouq0CAKeoDM8wT/3JJx7c7d+8jgxs4Kpd7In3EVgj0XTqDPJq9jNiZqUKZVgJcX27vl/0mVs4kaERtT66iokO+jb8T4Xi5NhcF50bHZ/zylcyqlIg0LYvRC0sAAnhZ4kbYj5MVUxKftXOXG4Zt2BcoaXgWCGM719iSTSV+qwE2TIWEncf0gn/q7MvYhTzo1Q49cr7Nug7nhWE4UrrA3eRJT9Y7Tx7uPdhK64po3pGia/2yo8J+xL+tRfd3N3m4Jf8ZRNfie4O9yqh6AZtCxKX9m7eu0DZMu/NvIZ1L9mSM9S7XoDENjOZoPlvw+Z9GRDIXG5oxxJMClsYutSHNl837VEdjQ3XGqWijLzANdwycoZPzEePq8hIPoymYx7ZZLPH7XLgDKlN2MO61GXSAzYRt7IIq0W4el8dV7XwaZrfBiDB0vdbCZSOri0KSO6uNcRHjZSYB64BcRpDHLvyEOOoy0bbyr5G0Rf1txi3c0n49eL7YKukWoM=
+  file:
+  - bin/desprite-windows-amd64.exe
+  - bin/desprite-osx-amd64
+  - bin/desprite-linux-amd64
+  on:
+    repo: fmovlex/desprite
+    tags: true
