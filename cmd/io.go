@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"sync"
-	"syscall"
 )
 
 // IOGroup wraps a WaitGroup with an additional rate-limit interface.
@@ -36,15 +35,6 @@ func NewIOGroup() IOGroup {
 	wg.Add(1)
 
 	return &ioGroup{limit: limit, wg: wg, limiter: limiter}
-}
-
-func checkLimit() int {
-	var rlimit syscall.Rlimit
-	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rlimit)
-	if err != nil {
-		return 50 // true random
-	}
-	return int(rlimit.Cur)
 }
 
 type ioGroup struct {
