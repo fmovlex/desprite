@@ -36,7 +36,7 @@ func Scale(parts []*Part, ratio int) ([]*Part, error) {
 		x, y := p.Rect.Min.X, p.Rect.Min.Y
 		diff := p.Rect.Max.Sub(p.Rect.Min)
 		w, h := diff.X, diff.Y
-		sr := image.Rect(x, y, x+w, y+h)
+		sr := image.Rect(x, y, x+(ratio*w), y+(ratio*h))
 		sp := &Part{Name: p.Name, Rect: &sr}
 		scaled = append(scaled, sp)
 	}

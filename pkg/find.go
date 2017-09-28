@@ -37,11 +37,6 @@ func Find(rule *css.Rule) (*Part, error) {
 		return nil, ErrNonQualified
 	}
 
-	// empty rules are given a shortcut
-	if len(rule.Declarations) == 0 {
-		return nil, newIncompleteError(required)
-	}
-
 	// collect properties-of-interest, or any errors extracting them
 	m := make(map[string]int)
 	errs := []error{}
@@ -73,7 +68,7 @@ func Find(rule *css.Rule) (*Part, error) {
 	}
 
 	// check that the map contains a full rectangle representation
-	err := checkRequired(m)
+	err := checkRequired(m, errs)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +135,7 @@ func bgpos(str string) (int, int, error) {
 
 var required = []string{"x", "y", "w", "h"}
 
-func checkRequired(m map[string]int) error {
+func checkRequired(m map[string]int, errs []error) error {
 	missing := []string{}
 	for _, prop := range required {
 		if _, ok := m[prop]; !ok {
@@ -150,7 +145,7 @@ func checkRequired(m map[string]int) error {
 
 	if len(missing) > 0 {
 		// could not determine one or more of the required rectangle properties
-		return newIncompleteError(missing)
+		return newIncompleteError(missing, errs)
 	}
 
 	return nil

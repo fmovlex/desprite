@@ -12,8 +12,8 @@ type UnrectableError struct {
 	Errors  []error
 }
 
-func newIncompleteError(missing []string) *UnrectableError {
-	return &UnrectableError{Missing: missing}
+func newIncompleteError(missing []string, errors []error) *UnrectableError {
+	return &UnrectableError{Missing: missing, Errors: errors}
 }
 
 func (e *UnrectableError) Error() string {
